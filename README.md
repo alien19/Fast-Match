@@ -23,7 +23,10 @@ Fast-Match: Fast and robust feature matching on large images.
 Proc. IEEE International Conference on Image Processing (ICIP), Québec City, Canada, Sept. 27-30, 2015.
 ```
 ## Dependencies
-*To be added later*
+Python 3 is now supported
+- Numpy
+- OpenCv
+*to be adjusted*
 
 ## How to install
 
@@ -32,7 +35,7 @@ Proc. IEEE International Conference on Image Processing (ICIP), Québec City, Ca
 2. `python example.py`
 
 - For usage with python: <br />
-  - navigate to **bak** folder and just run <br />
+  - just run <br />
     `python example.py`
 
 ## Code example

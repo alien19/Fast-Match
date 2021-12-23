@@ -157,8 +157,9 @@ class Metric_Cache :
         # Get relevant options and position tree
         sort_results = options.get("sort_results", True)
         pos_tree = self.original["position_tree"]
+        # print("Position", position)
         # Fetch all feature points within radius pixels of position
-        indices, distances = pos_tree.query_radius(position,
+        indices, distances = pos_tree.query_radius(position.reshape((1,-1)),
                                                    r = radius,
                                                    return_distance=True,
                                                    sort_results=sort_results)
@@ -171,7 +172,7 @@ class Metric_Cache :
         """ Exports cache to file """
         # Create unique identifier based on image path
         h = hashlib.new('ripemd160')
-        h.update(self.path)
+        h.update(self.path.encode())
         data_path = h.hexdigest()
         # Save data
         numpy.savez("%s/%s" % (dir, data_path),
@@ -192,7 +193,7 @@ class Metric_Cache :
         """ Loads file to Cache """
         # get hash for path
         h = hashlib.new('ripemd160')
-        h.update(self.path)
+        h.update(self.path.encode())
         data_path = h.hexdigest()
         # Check if file exists
         full_path_npz = "%s/%s.npz" % (dir, data_path)

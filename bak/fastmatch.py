@@ -11,7 +11,7 @@ Jonas Toft Arnfred, 2013-05-05
 ####################################
 
 from matchutil import get_features
-from cache import Grid_Cache
+from .cache import Grid_Cache
 import cv2
 from imaging import get_thumbnail, get_size
 import numpy
@@ -46,32 +46,36 @@ def do_iter(positions, cache, target_grid, tau = 0.85, log = None) :
     has_matched = {}
     found_matches = {}
     while True :
-        query_pos, target_pos = positions.next()
-        col, row = target_grid.block(target_pos[0], target_pos[1])
-        query_col, query_row = target_grid.block(query_pos[0], query_pos[1])
-        if not has_matched.get((col, row, query_col, query_row), False) :
-            has_matched[(col, row, query_col, query_row)] = True
-            result_pos, ratios = match_position((query_pos, target_pos), cache, target_grid)
-            # For each match we don't discard, we might want to examine the neighbor field
-            neighbor_pos = [(p[0], get_neighbor(target_pos, p[1], target_grid))
-                            for p in result_pos[ratios<tau] if get_neighbor(target_pos, p[1], target_grid) != None]
-            # Add new neighbor positions to positions
-            if len(neighbor_pos) > 0 :
-                positions = itertools.chain(neighbor_pos, positions)
-            # Log if we have to
-            if log != None :
-                log.append(log_iter(query_pos, target_pos, result_pos, target_grid, ratios, tau))
-            # Yield result if it hasn't been yielded already
-            for p,r in zip(result_pos[ratios<tau], ratios[ratios<tau]) :
-                p_touple = map(int, (p[0,0], p[0,1], p[1,0], p[1,1]))
-                if p_touple not in found_matches.get(r,[]) :
-                    found_matches[r] = found_matches.get(r,[]) + [p_touple]
-                    yield (p,r)
-
+        try:
+            query_pos, target_pos = next(positions)
+            # print(query_pos)
+            # print(target_pos)
+            col, row = target_grid.block(target_pos)
+            query_col, query_row = target_grid.block(query_pos)
+            if not has_matched.get((col, row, query_col, query_row), False) :
+                has_matched[(col, row, query_col, query_row)] = True
+                result_pos, ratios = match_position((query_pos, target_pos), cache, target_grid)
+                # For each match we don't discard, we might want to examine the neighbor field
+                neighbor_pos = [(p[0], get_neighbor(target_pos, p[1], target_grid))
+                                for p in result_pos[ratios<tau] if get_neighbor(target_pos, p[1], target_grid) != None]
+                # Add new neighbor positions to positions
+                if len(neighbor_pos) > 0 :
+                    positions = itertools.chain(neighbor_pos, positions)
+                # Log if we have to
+                if log != None :
+                    log.append(log_iter(query_pos, target_pos, result_pos, target_grid, ratios, tau))
+                # Yield result if it hasn't been yielded already
+                for p,r in zip(result_pos[ratios<tau], ratios[ratios<tau]) :
+                    p_touple = map(int, (p[0,0], p[0,1], p[1,0], p[1,1]))
+                    if p_touple not in found_matches.get(r,[]) :
+                        found_matches[r] = found_matches.get(r,[]) + [p_touple]
+                        yield (p,r)
+        except StopIteration:
+            break
 
 def get_neighbor(target_pos, other_pos, target_grid) :
-    col, row = target_grid.block(target_pos[0], target_pos[1])
-    return target_grid.get_neighbor(col, row, other_pos[0], other_pos[1])
+    col, row = target_grid.block(target_pos)
+    return target_grid.get_neighbor((col, row), other_pos)
 
 
 
@@ -116,16 +120,16 @@ def match_position(pos, cache, target) :
     pos_target = pos[1]
 
     # Find radius (average of height and width of target grid cell)
-    r = target.cell_width
+    r = target.cell_size[0] #cell_width
 
     # Find descriptors inside circle with radius r = square_size
     # This gives a bigger circle than rectangle, but there is no harm done
-    cache_ds, cache_pos, cache_dis = cache.get(pos_cache[0], pos_cache[1], r)
+    cache_ds, cache_pos, cache_dis = cache.get(pos_cache, radius= r)
 
-    target_kp, target_ds = target.get(pos_target[0], pos_target[1])
-    if target_ds == None :
+    target_kp, target_ds = target.get(pos_target)
+    if target_ds is None :
         return numpy.array([]), numpy.array([])
-    offset_x, offset_y = target.offset(pos_target[0], pos_target[1])
+    offset_x, offset_y = target.offset(pos_target)
     target_pos = [numpy.array([k.pt[0]+offset_x, k.pt[1]+offset_y]) for k in target_kp]
 
     # Match descriptors using bf
@@ -146,6 +150,6 @@ def log_iter(query_pos, target_pos, result_pos, target_grid, ratios, tau) :
         "target_pos" : target_pos,
         "target_grid" : target_grid.last,
         "matches" : result_pos[ratios<tau],
-        "radius" : target_grid.cell_width,
+        "radius" : target_grid.cell_size[0], # cell_width
         "ratios" : ratios[ratios<tau],
         "margin" : target_grid.margin }

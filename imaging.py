@@ -19,7 +19,7 @@ class scale :
 
     def __init__(self, data) :
         # Open image
-        if isinstance(data, basestring) :
+        if isinstance(data, str) :
             self.img = self.open(data)
         else :
             self.img = self.from_array(data)

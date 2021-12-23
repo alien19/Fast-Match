@@ -21,7 +21,7 @@ import cv2
 
 def sift() :
     if "SIFT" in dir(cv2):
-        return cv2.SIFT()
+        return cv2.SIFT_create()    # in OpenCv 4 or >3.4.2
     elif "xfeatures2d" in dir(cv2):
         return cv2.xfeatures2d.SIFT_create()
     else:

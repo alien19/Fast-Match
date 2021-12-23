@@ -160,6 +160,7 @@ def visualize_log(log, im1, im2, stop_at = None, scale = None, size = (14, 8)) :
     im2_size = numpy.array(im2.shape[1::-1] * s, dtype=numpy.uint16)
     im1_scaled = imaging.get_thumbnail(im1, size = im1_size)
     im2_scaled = imaging.get_thumbnail(im2, size = im2_size)
+    # print("SIZE", im1_size, im2_size)
     separation = 20
     offset_x = im1_size[0] + separation
     im3 = append_images(im1_scaled, im2_scaled, separation)
@@ -197,7 +198,7 @@ def visualize_log(log, im1, im2, stop_at = None, scale = None, size = (14, 8)) :
             x1, x2 = numpy.array([pos_q[0], pos_t[0]]) * s
             y1, y2 = numpy.array([pos_q[1], pos_t[1]]) * s
             ax.plot([x1, x2+offset_x], [y1,y2], color="#2595e3", lw=1)
-
+    pylab.show()
     # Limit figure to area around im3
     pylab.xlim(0,im3.shape[1])
     pylab.ylim(im3.shape[0],0)

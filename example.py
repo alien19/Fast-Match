@@ -1,7 +1,7 @@
 from __future__ import print_function
 import cv2
-from cache import Metric_Cache, Grid_Cache
-import fastmatch
+from bak.cache import Metric_Cache#, Grid_Cache
+import bak.fastmatch as fastmatch
 import figures
 
 
