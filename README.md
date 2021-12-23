@@ -25,7 +25,7 @@ Proc. IEEE International Conference on Image Processing (ICIP), Québec City, Ca
 ## Dependencies
 Python 3 is now supported
 - Numpy
-- OpenCv
+- OpenCv <br />
 *to be adjusted*
 
 ## How to install
