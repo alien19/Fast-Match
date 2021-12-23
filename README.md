@@ -22,10 +22,18 @@ J. T. Arnfred, S. Winkler.
 Fast-Match: Fast and robust feature matching on large images. 
 Proc. IEEE International Conference on Image Processing (ICIP), Québec City, Canada, Sept. 27-30, 2015.
 ```
+## Dependencies
+*To be added later*
 
 ## How to install
 
-Just git clone it
+- For usage with Cython run <br />
+1. `python setup.py build_ext --inplace`
+2. `python example.py`
+
+- For usage with python: <br />
+  - navigate to **bak** folder and just run <br />
+    `python example.py`
 
 ## Code example
 
