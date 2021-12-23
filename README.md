@@ -1,0 +1,72 @@
+# Fast matching algorithm for sift feature points
+
+## Abstract
+
+Today’s cameras produce images that often exceed 10 megapix
+els. Yet computing and matching local features for images
+of this size can easily take 20 seconds or more using optimized matching algorithms. This is much too slow for
+interactive applications and much too expensive for large
+scale image operations. We introduce Fast-Match, an algorithm designed to match large images efficiently without
+compromising matching accuracy. It derives its speed from
+only computing features in those parts of the image that can
+be confidently matched. Fast-Match is an order of magnitude faster than the popular Ratio-Match, yet often doubles
+matching precision for difficult image pairs.
+
+## Paper and Attribution
+
+You can find the paper presenting this work here: [Fast Match](http://stefan.winkler.net/Publications/icip2015fm.pdf).
+
+If you make use of this code or ideas expressed in the paper, please cite the following paper:
+```
+J. T. Arnfred, S. Winkler.
+Fast-Match: Fast and robust feature matching on large images. 
+Proc. IEEE International Conference on Image Processing (ICIP), Québec City, Canada, Sept. 27-30, 2015.
+```
+## Dependencies
+Python 3 is now supported
+- Numpy
+- OpenCv
+*to be adjusted*
+
+## How to install
+
+- For usage with Cython run <br />
+1. `python setup.py build_ext --inplace`
+2. `python example.py`
+
+- For usage with python: <br />
+  - just run <br />
+    `python example.py`
+
+## Code example
+
+Run the following code in the main directory
+
+```python
+import cv2
+from cache import Metric_Cache, Grid_Cache
+import fastmatch
+import figures
+
+# Open images and create cache
+target_path = "images/graf/img1.ppm"
+query_path = "images/graf/img4.ppm"
+query_cache = Metric_Cache(query_path)
+target_img = cv2.imread(target_path)
+query_img = cv2.imread(query_path)
+
+# Match using Fast-Match with a ratio threshold of 0.7
+log = []
+match_fun = fastmatch.match(query_cache, target_img, options = {'log' : log})
+matches = list(match_fun(0.7))
+
+# Visualize results
+# The [:,:,::-1] inverses the color channels so the images are printed correctly
+figures.visualize_log(log, query_img[:,:,::-1], target_img[:,:,::-1], stop_at = 100)
+```
+
+## License
+
+The code is released under the [MIT license](http://opensource.org/licenses/MIT).
+
+If you make use of this code, please cite the Fast-Match paper at ICIP 2015.
