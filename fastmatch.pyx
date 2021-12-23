@@ -65,7 +65,9 @@ cdef object do_iter(object positions, Metric_Cache cache, Grid_Cache target_grid
     found_matches = {}
     while True :
         try :
-            query_pos, target_pos = positions.next()
+            query_pos, target_pos = next(positions)
+            # print("HEREER",query_pos)
+            # print(target_pos)
             col, row = target_grid.block(target_pos[0], target_pos[1])
             query_col, query_row = target_grid.block(query_pos[0], query_pos[1])
             if not has_matched.get((col, row, query_col, query_row), False) :
@@ -152,7 +154,7 @@ cdef match_position(pos, Metric_Cache query_cache, Grid_Cache target, int radius
     query_ds, query_pos, query_dis, query_idx = query_cache.get(query_x, query_y, radius)
 
     target_kp, target_ds = target.get(target_x, target_y)
-    if target_ds == None :
+    if target_ds is None :
         return numpy.array([]), numpy.array([]), numpy.array([])
     offset_x, offset_y = target.offset(target_x, target_y)
     target_pos = [numpy.array([k.pt[0]+offset_x, k.pt[1]+offset_y]) for k in target_kp]

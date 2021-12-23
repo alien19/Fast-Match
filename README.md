@@ -31,8 +31,9 @@ Python 3 is now supported
 ## How to install
 
 - For usage with Cython run <br />
-1. `python setup.py build_ext --inplace`
-2. `python example.py`
+1. `pip install Cython` or `conda install -c anaconda cython` 
+2. `python setup.py build_ext --inplace`
+3. `python example_cython.py`
 
 - For usage with python: <br />
   - just run <br />

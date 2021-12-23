@@ -30,10 +30,10 @@ cdef class Grid_Cache :
 
 
 cdef class Metric_Cache :
-    cdef public char* path
+    cdef public str path
     cdef public object thumb
     cdef public object original
     # methods
-    cdef object load(self, char* dir = ?)
-    cdef create_thumbnail(self, char* path, int thumb_x, int thumb_y)
-    cdef create_image(self, char* path, int max_size, char* metric)
+    cdef object load(self, str dir = ?)
+    cdef create_thumbnail(self, str path, int thumb_x, int thumb_y)
+    cdef create_image(self, str path, int max_size, str metric)

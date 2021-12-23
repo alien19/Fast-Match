@@ -12,8 +12,7 @@ Jonas Toft Arnfred, 2013-04-22
 #            Imports               #
 #                                  #
 ####################################
-
-from sklearn.neighbors.ball_tree import BallTree
+from sklearn.neighbors import BallTree
 import pickle
 import os
 import numpy
@@ -21,7 +20,9 @@ import hashlib
 import imaging
 import matchutil
 cimport numpy
-
+from libc.stdlib cimport atoi
+from libc.string cimport strcpy, strlen
+# from libcpp.string cimport string
 #########################################
 #                                       #
 #              Grid Cache               #
@@ -75,7 +76,7 @@ cdef class Grid_Cache :
         position is closest to in the current image """
         cdef int x, y, x_diff, y_diff, c_x, c_y
         cdef numpy.ndarray[numpy.int_t] n_pos, pos_error
-        pos_error = numpy.ones(2, dtype=numpy.int) * -1
+        pos_error = numpy.ones(2, dtype=int) * -1
         # Find center of block of pos
         x, y = self.center(col, row)
         # Now find where we are relating to center
@@ -118,7 +119,7 @@ cdef class Grid_Cache :
         y = int((col + 0.5) * self.cell_height)
         x_in = x if x < self.width - 1 else self.width - 1
         y_in = y if y < self.height - 1 else self.height - 1
-        return numpy.array((x_in, y_in), dtype=numpy.int)
+        return numpy.array((x_in, y_in), dtype=int)
 
 
     cdef object cache(self, int col, int row) :
@@ -150,7 +151,7 @@ cdef class Grid_Cache :
 
 cdef class Metric_Cache :
 
-    def __init__(self, char* path, options = {}) :
+    def __init__(self, str path, options = {}) :
         """ Caches an image so it's ready for matching """
         # Get relevant options
         cdef int thumb_x, thumb_y
@@ -165,6 +166,7 @@ cdef class Metric_Cache :
         # check if the path exists
         if not force_reload and self.load() : return
         # Create thumbnail and image
+        # print("METTRIC", type(metric))
         self.create_thumbnail(path, thumb_x, thumb_y)
         self.create_image(path, max_size, metric)
         self.save()
@@ -179,7 +181,8 @@ cdef class Metric_Cache :
         cdef bint sort_results = options.get("sort_results", True)
         cdef object pos_tree = self.original["position_tree"]
         # Fetch all feature points within radius pixels of position
-        indices, distances = pos_tree.query_radius(numpy.array((x,y)),
+        # print("Position", [x, y])
+        indices, distances = pos_tree.query_radius(numpy.array((x,y)).reshape((1,-1)),
                                                    r = radius,
                                                    return_distance=True,
                                                    sort_results=sort_results)
@@ -188,11 +191,11 @@ cdef class Metric_Cache :
         return self.original["descriptors"][idx], self.original["positions"][idx], self.original["distances"][idx], idx
 
 
-    def save(self, char* dir = "data/image_data") :
+    def save(self, str dir = "data/image_data") :
         """ Exports cache to file """
         # Create unique identifier based on image path
         cdef object h = hashlib.new('ripemd160')
-        h.update(self.path)
+        h.update(self.path.encode())
         cdef object data_path = h.hexdigest()
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -211,12 +214,12 @@ cdef class Metric_Cache :
         return data_path
 
 
-    cdef object load(self, char* dir = "data/image_data") :
+    cdef object load(self, str dir = "data/image_data") :
         """ Loads file to Cache """
         # get hash for path
         cdef object data, data_thumb
         cdef object h = hashlib.new('ripemd160')
-        h.update(self.path)
+        h.update(self.path.encode())
         cdef object data_path = h.hexdigest()
         # Check if file exists
         cdef object full_path_npz = "%s/%s.npz" % (dir, data_path)
@@ -239,7 +242,7 @@ cdef class Metric_Cache :
         return data, data_thumb
 
 
-    cdef create_thumbnail(self, char* path, int thumb_x, int thumb_y) :
+    cdef create_thumbnail(self, str path, int thumb_x, int thumb_y) :
         """ Get relevant data for thumbnail """
         cdef numpy.ndarray[numpy.uint8_t, ndim=3] thumbnail
         # Create thumbnail
@@ -260,7 +263,7 @@ cdef class Metric_Cache :
         }
 
 
-    cdef create_image(self, char* path, int max_size, char* metric) :
+    cdef create_image(self, str path, int max_size, str metric) :
         """ Match an image with itself finding the closest neighbors within that image """
         cdef numpy.ndarray[numpy.uint8_t, ndim=3] img_data
         # Open image
