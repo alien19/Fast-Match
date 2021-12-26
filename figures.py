@@ -198,7 +198,7 @@ def visualize_log(log, im1, im2, stop_at = None, scale = None, size = (14, 8)) :
             x1, x2 = numpy.array([pos_q[0], pos_t[0]]) * s
             y1, y2 = numpy.array([pos_q[1], pos_t[1]]) * s
             ax.plot([x1, x2+offset_x], [y1,y2], color="#2595e3", lw=1)
-    pylab.show()
+
     # Limit figure to area around im3
     pylab.xlim(0,im3.shape[1])
     pylab.ylim(im3.shape[0],0)

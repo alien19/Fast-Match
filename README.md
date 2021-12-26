@@ -26,6 +26,7 @@ Proc. IEEE International Conference on Image Processing (ICIP), Québec City, Ca
 Python 3 is now supported
 - Numpy
 - OpenCv
+- pyflann-py3
 *to be adjusted*
 
 ## How to install

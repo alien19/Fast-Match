@@ -10,7 +10,7 @@ Jonas Toft Arnfred, 2013-04-22
 #                                  #
 ####################################
 
-from sklearn.neighbors.ball_tree import BallTree
+from sklearn.neighbors import BallTree
 import pickle
 import os
 import numpy

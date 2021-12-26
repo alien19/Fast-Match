@@ -16,6 +16,7 @@ import cv2
 from imaging import get_thumbnail, get_size
 import numpy
 import itertools
+from time import time
 
 
 ####################################
@@ -31,13 +32,21 @@ def match(query_cache, target_img, options = {}) :
     log = options.get("log", None)
     grid_margin = options.get("grid_margin", 25)
     # Create target cache
+    ts = time()
     target_cache = Grid_Cache(target_img, grid_size, get_features, margin = grid_margin)
+    te = time()
+    print("Creating grid cache timee:", te - ts, "secs.")
     thumb_positions, thumb_ratios = match_thumbs(target_img, query_cache, thumb_size = thumb_size)
     # Create a function where we can wary tau to get different results
     def get_matches(tau, thumb_tau = None) :
         thumb_tau = tau if thumb_tau == None else thumb_tau
+        t1 = time()
         positions_iter = itertools.chain(thumb_positions[thumb_ratios<thumb_tau])
+        t2 = time()
         matches = do_iter(positions_iter, query_cache, target_cache, tau = tau, log = log)
+        t3 = time()
+        print("Position iter time:", t2 - t1, "secs.")
+        print("Matches time:", t3 - t2, "secs.")
         return matches
     return get_matches
 
@@ -83,7 +92,7 @@ def match_thumbs(img, cache, thumb_size = (400, 400)) :
     # Load target and find descriptors and size
     target = get_thumbnail(img, thumb_size)
     t_orig_size = get_size(img)
-    get_features(target)
+    # get_features(target)
     t_keypoints, t_descriptors = get_features(target)
 
     # Similar for query
